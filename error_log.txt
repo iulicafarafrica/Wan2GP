@@ -1,0 +1,9 @@
+D:\Wan2GP\.venv\Lib\site-packages\diffusers\models\transformers\transformer_kandinsky.py:168: UserWarning: CUDA is not available or torch_xla is imported. Disabling autocast.
+  @torch.autocast(device_type="cuda", dtype=torch.float32)
+D:\Wan2GP\.venv\Lib\site-packages\diffusers\models\transformers\transformer_kandinsky.py:272: UserWarning: CUDA is not available or torch_xla is imported. Disabling autocast.
+  @torch.autocast(device_type="cuda", dtype=torch.float32)
+Traceback (most recent call last):
+  File "D:\Wan2GP\wgp.py", line 2297, in <module>
+    if  gpu_major < 8:
+        ^^^^^^^^^
+NameError: name 'gpu_major' is not defined

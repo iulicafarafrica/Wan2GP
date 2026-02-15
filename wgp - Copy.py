@@ -9481,7 +9481,7 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
         launch_multis_str = ui_defaults.get("loras_multipliers","")
         launch_loras = [os.path.basename(path) for path in ui_defaults.get("activated_loras",[])]
     with gr.Row():
-        column_kwargs = {'elem_id': 'edit-tab-content'} if tab_id == 'edit' else {}
+        column_kwargs = {'elem_id': 'edit-tab-content', 'scale': 3} if tab_id == 'edit' else {'scale': 3}
         with gr.Column(**column_kwargs):
             with gr.Column(visible=False, elem_id="image-modal-container") as modal_container:
                 modal_html_display = gr.HTML()
@@ -9987,13 +9987,169 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
                 alt_prompt_lines = alt_prompt_def.get("lines", 2)
             if alt_prompt_label:
                 with gr.Row(visible=True) as alt_prompt_row:
-                    alt_prompt = gr.Textbox(
-                        label=alt_prompt_label,
-                        value=ui_get("alt_prompt", ""),
-                        lines=alt_prompt_lines,
-                        placeholder=alt_prompt_placeholder,
-                        visible=True,
-                    )
+                    with gr.Column():
+                        MUSIC_TEMPLATES = {
+                            "-- Select Template --": "",
+                            "--- 🇷🇴 ROMANIA ---": "",
+                            "-- Urban --": "",
+                            "Romanian Trap": "romanian trap, dark trap beat, heavy 808 bass, distorted sub bass, punchy snares, rolling hi-hats, aggressive male rapper, street energy, Bucharest underground, dark atmospheric, slow melodic hook, ad-libs, hard hitting drums, trap banger, moody vibe, 140 BPM",
+                            "Romanian Hip-Hop Old School": "romanian hip-hop, old school rap, 2000s east coast influenced, boom bap beat, heavy bass, vinyl samples, aggressive male rapper, street poetry, Bucharest underground, dark atmospheric beat, slow deliberate flow, hard hitting drums, mafia theme, powerful chorus, crowd chant, raw authentic energy, 90s boom bap production style",
+                            "Romanian Hip-Hop Modern": "modern romanian hip-hop, melodic trap, autotune vocals, heavy 808 bass, dark beat, atmospheric synths, emotional delivery, street life themes, melodic hooks, trap production, BPM 130-140, minor key, dark ambient pads",
+                            "Romanian Drill": "romanian drill, dark drill beat, sliding 808 bass, punchy kicks, off-beat hi-hats, aggressive flow, street rap, dark minor key, cinematic strings, cold atmospheric, uk drill influenced, hard hitting production",
+                            "Romanian Melodic Trap": "melodic romanian trap, emotional trap, autotune heavy, melodic hooks, dark 808 bass, atmospheric beat, sad trap vibes, piano melody, catchy chorus, slow emotional delivery, minor key, reverb vocals, dreamy production",
+                            "Romanian R&B": "romanian r&b, smooth production, melodic vocals, soft 808 bass, emotional delivery, love themes, slow tempo, lush chords, soulful singing, modern r&b production, 90 BPM, romantic atmosphere",
+                            "-- Pop/Dance --": "",
+                            "Romanian Pop": "romanian pop, upbeat energetic, catchy melody, bright synths, modern production, danceable beat, radio friendly, polished mix, 120 BPM, major key, euphoric chorus, electronic elements",
+                            "Romanian Pop Modern": "modern romanian pop, emotional delivery, cinematic production, lush strings, melodic hooks, introspective lyrics, The Motans style, Irina Rimes influenced, warm production, 100 BPM, minor key, radio friendly",
+                            "Dance Eurodance Romanian": "romanian eurodance, 2000s dance, upbeat electronic, catchy hooks, four-on-the-floor kick, bright synths, energetic vocals, Morandi style, Akcent influenced, 128 BPM, major key, party energy, nostalgic 2000s feel",
+                            "Muzica Usoara": "muzica usoara romaneasca, romantic classical pop, orchestral arrangement, warm strings, emotional male or female vocals, slow tempo, 70-80 BPM, nostalgic feel, Angela Similea style, poetic lyrics, vintage production, tender melody",
+                            "-- Manele/Oriental --": "",
+                            "Manele": "manele, oriental pop, romanian folk influenced, electronic production, catchy melodic hook, emotional male vocals, accordion samples, oriental scales, synthesizer lead, upbeat danceable rhythm, 130-140 BPM, minor key, festive energy, balkan influences, romantic themes, lush string arrangements, wedding dance vibe",
+                            "Romanian Manele Trap": "romanian trap manele fusion, oriental influences, heavy bass, trap beat, eastern scales, traditional romanian elements mixed with modern trap production, catchy melodic hook, emotional vocals, 130 BPM",
+                            "-- Rock/Metal --": "",
+                            "Balada Rock Haiduceasca": "Baladă rock haiducescă, tempo lent (~70 BPM), atmosferă emoțională, dramatică și cinematică. Intro: fluier clar și melodios cu reverberație. Vers: instrumente tradiționale (cobză, vioară) combinate cu chitară acustică/eletrică subtilă și bass profund, ritm haiducesc vechi, melodie expresivă. Refren: voce masculină groasă, angelică, și voce feminină delicată, cu ecouri, armonii vechi și intensitate rock. Bridge: creștere ușoară a intensității chitarelor și coardelor pentru climax. Outro: diminuare progresivă, fluier reintrodus, final cinematic, emoțional și nostalgic. Sunet cald, clar, dramatic și autentic.",
+                            "Rock Romanesc": "romanian rock, electric guitars, powerful drums, emotional vocals, 120 BPM, Vama style, Coma influenced, Taxi sound, energetic riffs, melodic chorus, angst energy, alternative rock elements, romanian lyrics",
+                            "Metal Romanesc Folk": "romanian folk metal, heavy distorted guitars, traditional instruments, vioară, cobza, dark atmospheric, Bucovina style, Negura Bunget influenced, epic build, powerful drums, dual vocals, ancestral themes, medieval romanian atmosphere, 140 BPM",
+                            "Alternative Rock Romanian": "romanian alternative rock, introspective lyrics, dark moody atmosphere, Carla's Dreams style, Byron influenced, melodic guitar riffs, emotional delivery, minor key, cinematic production, 100 BPM",
+                            "-- Folclor/Traditional --": "",
+                            "Muzica Populara": "muzica populara romaneasca, authentic romanian folk, vioara, cobza, nai, taragot, traditional instruments, village dance rhythm, hora, sarba, 120-140 BPM, joyful energy, call and response vocals, regional romanian style, authentic production",
+                            "Muzica Etno": "muzica etno romaneasca, modernized romanian folk, electric instruments fused with traditional, Maria Tanase style, emotional female vocals, dark doina influenced, cinematic orchestration, 80 BPM, melancholic mood, cultural identity",
+                            "Doina": "doina romaneasca, slow lyrical romanian folk, deeply melismatic vocals, improvised emotional delivery, taragot or vioara solo, no fixed rhythm, free tempo, profound sadness and longing, dor romanesc, spiritual depth, traditional authentic",
+                            "Muzica Lautareasca": "muzica lautareasca, taraf de haidouks style, virtuoso violin, improvised, fast ornaments, roma influence, celebratory energy, wedding music, accordion and violin lead, unpredictable rhythm, authentic gypsy jazz elements, virtuosic performance",
+                            "Balkan Brass Fanfara": "balkan brass fanfare, Fanfare Ciocarlia style, powerful brass section, tuba bass, fast tempo, 160 BPM, euphoric energy, eastern european scales, wedding celebration, roma brass tradition, powerful percussion, call and response horns",
+                            "-- Spiritual --": "",
+                            "Byzantine Angelic Female Voice": "Byzantine psaltic angelic female vocals, mezzo-soprano, clear crystalline tone, deeply expressive melismatic runs, fully acoustic, intimate, breathy, with delicate natural vibrato and dynamic phrasing. Soft ethereal humming intro, conveying profound tragedy, melancholy, and spiritual depth. Romanian mioritic ballad style fused with Avatar-inspired ethereal, cinematic atmosphere. Accompanied ONLY by solo melancholic violin and piano, balanced for pristine acoustic clarity and immersive resonance. Studio-quality recording, cinematic reverb, ethereal textures, emotionally intense, acapella-focused, profoundly moving",
+                            "Colinda": "colinda romaneasca, traditional romanian christmas carol, angelic choir vocals, acoustic instruments, vioara, flute, warm festive atmosphere, joyful celebration, minor key melancholy mixed with joy, authentic traditional style, village choir sound, 80 BPM",
+                            "--- 🔫 TRAP ---": "",
+                            "Trap": "trap, heavy 808 bass, punchy snares, fast hi-hats, aggressive energy, dark beat, hard hitting drums, street rap, trap banger, 140 BPM, minor key, dark atmospheric",
+                            "Dark Trap": "dark trap, ominous atmosphere, heavy distorted 808, slow sinister beat, dark synths, horror elements, aggressive delivery, haunting melodies, dark minor key, slow tempo, cinematic tension, evil energy",
+                            "Melodic Trap": "melodic trap, emotional hooks, autotune vocals, lush pads, dark 808 bass, dreamy atmosphere, sad vibes, piano melody, catchy chorus, slow emotional delivery, minor key, reverb vocals, introspective mood",
+                            "Hard Trap": "hard trap, aggressive production, heavy distorted 808, fast snappy snares, rapid hi-hats, intense energy, confrontational lyrics, hard hitting drums, loud mix, no melody just aggression, street energy, peak aggression",
+                            "UK Drill": "UK drill, dark cinematic strings, sliding 808 bass, off-beat snares, aggressive flow, cold atmospheric, london streets, minor key, dark orchestral elements, hard hitting production, violent energy, fast triplet flow",
+                            "NY Drill": "new york drill, dark piano loops, heavy 808, aggressive snares, brooklyn energy, cold streets vibe, hard flow, cinematic production, dark minor key, hard hitting, east coast drill, menacing atmosphere",
+                            "Chicago Drill": "chicago drill, heavy trap beat, dark synths, aggressive delivery, street energy, 808 bass, hard snares, chicago streets, intense production, raw energy, violent themes, dark minor key",
+                            "Australian Drill": "australian drill, unique flow patterns, dark trap production, heavy 808, aggressive delivery, sydney streets vibe, uk drill influenced, dark minor key, hard hitting drums, cold atmosphere",
+                            "Brooklyn Drill": "brooklyn drill, ny drill style, dark piano, heavy 808 bass, aggressive snares, east coast energy, hard flow, menacing atmosphere, street rap, cinematic dark production",
+                            "Trap Soul": "trap soul, emotional r&b meets trap, soft 808 bass, melodic vocals, lush pads, romantic themes, slow tempo, autotune light, warm production, Bryson Tiller influenced, intimate atmosphere, 85 BPM",
+                            "Trap Metal": "trap metal, heavy distorted guitars, aggressive trap drums, screaming vocals, rap verses, metal breakdown, intense energy, Ghostemane influenced, industrial elements, dark aggressive, crossover genre",
+                            "Rage Trap": "rage trap, distorted 808, fast aggressive flow, dark synths, high energy, Playboi Carti influenced, punk attitude, chaotic energy, distorted hi-hats, aggressive delivery, no melody, raw energy",
+                            "Emo Trap": "emo trap, emotional delivery, sad themes, melodic hooks, soft 808, lil peep influenced, guitar elements, emotional vulnerability, dark introspective, slow tempo, autotune vocals, melancholic atmosphere",
+                            "Lo-Fi Trap": "lo-fi trap, dusty samples, warm vinyl texture, soft 808, chill relaxed energy, mellow vibe, lo-fi aesthetics, tape saturation, smooth groove, jazzy elements, study music feel, relaxed trap beat",
+                            "Phonk": "phonk, dark memphis rap, distorted 808 bass, chopped vocal samples, aggressive hi-hats, dark cowbell, drifting energy, lo-fi dark beat, sinister atmosphere, car culture vibe, russian phonk influence, heavy distortion, dark trap, 140 BPM, viral tiktok energy",
+                            "Drift Phonk": "drift phonk, aggressive distorted bass, dark synths, heavy cowbell pattern, racing car energy, european phonk, slavic influence, fast hi-hats, dark cinematic, 150 BPM, adrenaline rush, heavy 808, distorted vocals chops, underground viral",
+                            "PluggnB": "pluggnb, dreamy plugg trap, 90s r&b samples, melodic hooks, soft 808 bass, atmospheric pads, emotional delivery, lush chords, slow dreamy tempo, 80-90 BPM, vintage soul samples, autotune vocals, lo-fi warmth, nostalgic feel",
+                            "Arabic Trap UK Drill": "A fast-paced Arabic trap instrumental fusing UK drill hi-hats, rolling basslines, and haunting Arabic vocal chops. Features darbuka patterns, distorted synths, and aggressive rhythms. Urban, dark, and aggressive and cinematic. Instrumental",
+                            "Latin Drill": "latin drill, spanish lyrics, dark drill beat, sliding 808, aggressive flow, latin percussion elements, UK drill structure, urban latin street energy, dark minor key, cinematic strings, hard hitting production, reggaeton influenced rhythm",
+                            "Cloud Rap": "cloud rap, ethereal dreamy atmosphere, soft 808, ambient pads, slow tempo, introspective lyrics, Yung Lean style, Bladee influenced, hazy production, lo-fi textures, melancholic mood, whispery vocals, 70-80 BPM, woozy feel",
+                            "Mumble Rap": "mumble rap, melodic over clarity, heavy autotune, Future style, Young Thug influenced, melodic hooks, trap production, 130 BPM, vibe over lyrics, catchy flow, trap beats, atmospheric production",
+                            "French Trap": "french trap, PNL style, dark moody production, deep 808, atmospheric synths, french lyrics, melancholic mood, Booba influenced, cinematic dark beat, slow flow, 130 BPM, urban paris vibe, cold atmosphere",
+                            "Korean Trap": "korean trap, k-hip-hop, english and korean lyrics, dark trap beat, heavy 808, Keith Ape influenced, aggressive delivery, dark synths, 140 BPM, asian trap fusion, cold atmosphere",
+                            "Japanese Trap": "japanese trap, j-pop meets trap, melodic hooks, heavy 808, japanese lyrics, dark beat, anime culture influence, kawaii dark aesthetic, 130 BPM, unique flow patterns, trap production",
+                            "Crunk": "crunk, southern party rap, high energy, Lil Jon style, call and response chants, heavy bass, loud aggressive delivery, club energy, 130 BPM, repetitive hooks, hyped crowd atmosphere, east atlanta sound",
+                            "Plugg": "plugg, dreamy atmospheric trap, atlanta underground, soft melodic flow, ambient pads, 808 bass, slow tempo, introspective, hazy production, lo-fi warmth, underground atlanta, 80-90 BPM",
+                            "Experimental Trap": "experimental trap, boundary pushing production, unconventional sounds, abstract beats, noise elements, avant-garde trap, deconstructed rhythm, industrial textures, unpredictable structure, innovative sonic palette",
+                            "Grime": "grime, UK urban, fast MC flow, 140 BPM, electronic beats, Skepta style, aggressive delivery, east london, syncopated rhythm, sparse dark beat, confrontational lyrics, underground british culture",
+                            "Hyperpop": "hyperpop, hyper-compressed production, glitchy digital sounds, 100 gecs style, pitched up vocals, distorted 808, pop hooks, chaotic energy, internet aesthetics, extreme processing, 150+ BPM, euphoric chaos",
+                            "Digicore": "digicore, internet-born microgenre, glitchy digital trap, bedroom production, lo-fi digital aesthetics, pitched vocals, soft 808, online culture references, raw unpolished feel, emo influences, 120 BPM",
+                            "Memphis Rap": "memphis rap, dark lo-fi southern rap, Three 6 Mafia style, horror themes, chopped samples, slow dark beat, 70-80 BPM, tape hiss, evil atmosphere, triple six influence, occult themes, raw underground",
+                            "Screw": "chopped and screwed, slowed down houston style, DJ Screw influenced, pitched down vocals, syrupy slow tempo, 60-70 BPM, lean culture, hypnotic repetition, southern rap, houston texas, slow motion feel",
+                            "--- 🔥 TRENDING 2026 ---": "",
+                            "Hard Techno": "hard techno, aggressive kicks, distorted bassline, dark industrial atmosphere, 145-150 BPM, warehouse energy, rave culture, relentless rhythm, dark synths, berlin underground, no melody just groove, brutal kick drum, dark hypnotic loop",
+                            "Nu Metal Revival": "nu metal revival, heavy distorted guitars, aggressive rap vocals, emotional sung chorus, heavy drums, dark lyrics, angst energy, melodic bridge, Deftones influenced, Korn style, heavy bass, alternating rap and singing, loud dynamic range, early 2000s feel modernized",
+                            "Jersey Club": "jersey club, stuttering kick pattern, chopped vocal samples, high energy, 130-140 BPM, baltimore club influenced, fast hi-hats, call and response vocals, dancefloor energy, urban east coast, pitched vocal chops, complex drum programming, party energy",
+                            "Future Rave": "future rave, epic builds, dark synth leads, festival energy, 130 BPM, euphoric drop, emotional chord progression, heavy kick, driving bassline, Swedish house influenced, massive crowd energy, dramatic tension and release, melodic elements, rave anthem",
+                            "Neo-Soul": "neo-soul, organic production, warm rhodes piano, jazz chords, soulful female vocals, live drums, bass guitar groove, 85 BPM, introspective lyrics, smooth feel, vintage warmth, acoustic instruments, emotional depth, d'angelo influenced, erykah badu style",
+                            "Trip-Hop Revival": "trip-hop revival, dark downtempo, cinematic atmosphere, dusty samples, slow heavy drums, 80 BPM, dark bass, haunting vocals, FKA Twigs inspired, portishead influence, lo-fi textures, noir atmosphere, melancholic mood, experimental production",
+                            "Speed Garage": "speed garage, pitched up vocals, driving 4/4 kick, deep bass wobble, 130 BPM, UK garage accelerated, swing rhythm, underground london, energetic dancefloor, chopped RnB vocals, sub bass emphasis, late night club energy",
+                            "--- 🏠 HOUSE ---": "",
+                            "-- Classic House --": "",
+                            "Chicago House": "chicago house, original house music, 4-on-the-floor kick, Roland 808 909, disco influenced, soulful vocals, 120 BPM, warm bassline, piano chords, classic underground feel, warehouse energy, 1980s chicago sound",
+                            "Garage House": "garage house, new york underground, piano-driven, soulful gospel vocals, 120 BPM, spiritual energy, Larry Levan influenced, Paradise Garage sound, uplifting choir, warm production, classic house feel",
+                            "Acid House": "acid house, Roland TB-303 squelch bass, psychedelic atmosphere, 125 BPM, 1988 UK rave scene, hypnotic loop, repetitive structure, warehouse energy, trippy synths, underground revolution sound",
+                            "Soulful House": "soulful house, gospel-influenced vocals, emotional depth, orchestral strings, 120 BPM, uplifting energy, choir elements, warm production, spiritual feel, classic soul meets electronic, dancefloor emotion",
+                            "-- Modern House --": "",
+                            "Deep House": "deep house, warm bassline, soulful vocals, lush chords, atmospheric pads, smooth groove, 120 BPM, late night vibe, melodic synths, four-on-the-floor kick, subtle percussion, underground club feel, emotional depth, chicago house influenced",
+                            "Progressive House": "progressive house, long builds, cinematic atmosphere, Sasha Digweed style, emotional journey, 128 BPM, evolving layers, dramatic tension and release, melodic elements, underground club, late night energy",
+                            "French House": "french house, Daft Punk style, filter sweeps, disco samples, funky bassline, 124 BPM, vocoder vocals, chopped disco, warm analog feel, groovy rhythm, french touch production, funky electronic",
+                            "Funky House": "funky house, disco meets house, groovy bassline, catchy hooks, 126 BPM, funk influenced, brass stabs, danceable groove, upbeat energy, classic funk samples, radio friendly, dancefloor ready",
+                            "Electro House": "electro house, big drops, distorted bass, Swedish House Mafia style, 128 BPM, festival energy, euphoric build, massive drop, hard hitting kicks, crowd energy, mainstream electronic",
+                            "Hard House": "hard house, Tony De Vit style, powerful euphoric energy, 140 BPM, UK underground, driving bassline, hard kick, uplifting melody, rave energy, intense build, euphoric release",
+                            "Tribal House": "tribal house, tribal percussion, hypnotic groove, Latin influenced, congas bongos, 124 BPM, repetitive rhythm, underground dark energy, spiritual vibe, ethnic elements, deep rolling bassline",
+                            "Bass House": "bass house, dubstep wub meets house, Jauz style, FISHER influenced, 128 BPM, growling bass, punchy kick, aggressive drops, underground club, driving groove, heavy bass modulation",
+                            "Future House": "future house, metallic bass drops, UK garage influenced, Oliver Heldens style, 124 BPM, bouncy rhythm, melodic elements, catchy hooks, polished production, dancefloor energy",
+                            "Slap House": "slap house, brazilian bass meets deep house, Imanbek style, DJ Alok influenced, 120-124 BPM, punchy slap bass, emotional melody, massive drop, radio friendly, global pop appeal",
+                            "Tropical House": "tropical house, Ibiza summer vibe, Kygo style, melodic production, steel drums, 100 BPM, relaxed groove, sunset atmosphere, acoustic elements, emotional hooks, festival feel, warm production",
+                            "Jackin House": "jackin house, funky basslines, chopped soulful vocals, 126-130 BPM, underground chicago influence, bouncy groove, raw energy, percussive elements, dancefloor ready, authentic house feel",
+                            "Ambient House": "ambient house, atmospheric dreamy production, slow tempo, 100 BPM, ethereal pads, soft four-on-the-floor, introspective mood, late 80s origins, chill vibe, textural soundscape, emotional depth",
+                            "Brazilian Bass": "brazilian bass, deep punchy bassline, DJ Alok style, 120-125 BPM, energetic drop, latin rhythm elements, electronic production, dancefloor ready, global sound, festival energy",
+                            "Latin House": "latin house, salsa samba meets electronic house, 122 BPM, latin percussion, congas, piano riffs, energetic groove, dancefloor energy, cultural fusion, warm production",
+                            "-- Afro House --": "",
+                            "Afro House": "afro house, african percussion, tribal drums, organic groove, deep bass, hypnotic rhythm, 122 BPM, ethnic instruments, warm pads, spiritual energy, south african house influenced, percussive elements, ancestral vibes, afro-tech fusion",
+                            "Afro House Aaron Sevilla Style": "Afro house / tribal house club track. Deep groovy kick, warm rolling bassline, hypnotic tribal percussion, bongos, congas and shakers. Dark, sexy and underground club vibe, minimal arrangement, strong groove for dancefloor. 124 BPM, minor key, DJ-friendly structure, late night club atmosphere, repetitive hypnotic energy",
+                            "Afro Tech": "afro tech, deep tribal groove, electronic percussion, african rhythm patterns, dark bassline, 125 BPM, hypnotic energy, organic meets electronic, south african influence, spiritual atmosphere, deep rolling bass, ethereal vocals chops",
+                            "Amapiano": "amapiano, south african piano house, log drum bass, jazzy piano chords, deep log drum, percussive groove, 112 BPM, soulful vocals, kwaito influenced, joyful energy, township vibe, bubbly synths, syncopated rhythm, dancefloor ready, afro fusion",
+                            "-- Tech/Minimal --": "",
+                            "Tech House": "tech house, driving groove, punchy kick, deep bass, hypnotic loop, 128 BPM, minimal elements, dark atmosphere, underground club, percussive synths, filtered bass, mechanical rhythm, berlin techno influenced, peak time energy",
+                            "Melodic House": "melodic house, emotional journey, lush pads, melodic synth lead, deep bassline, 123 BPM, progressive build, ethereal atmosphere, cinematic feel, melodic techno influenced, euphoric breakdown, driving rhythm, introspective mood",
+                            "Minimal Tech House": "minimal tech house, stripped back production, hypnotic groove, subtle bass, repetitive loop, 126 BPM, dark underground, sparse arrangement, psychedelic elements, late night club, detroit techno influenced, micro percussion",
+                            "--- 🌍 GLOBAL ---": "",
+                            "-- Latin Urban --": "",
+                            "Reggaeton": "reggaeton, puerto rican urban, dembow rhythm, Daddy Yankee style, 95 BPM, perreo energy, heavy bass, catchy hook, urban latino, danceable groove, festive atmosphere, latin urban culture",
+                            "Reggaeton Melodico": "melodic reggaeton, romantic urban latin, Bad Bunny style, J Balvin influenced, emotional delivery, 90 BPM, melodic hooks, autotune vocals, lush production, love themes, trap influenced rhythm",
+                            "Neo Perreo": "neo perreo, experimental reggaeton, Rosalia influenced, avant-garde latin urban, unconventional production, 95 BPM, artistic approach, cultural fusion, dark mysterious atmosphere, innovative sound",
+                            "Moombahton": "moombahton, house meets dembow, Diplo style, 108 BPM, heavy bass, latin rhythm, dancefloor energy, dutch house influence, electronic production, party atmosphere, global sound",
+                            "Dembow": "dembow, fast dancehall rhythm, boom-chick drum pattern, heavy 808 bass, rolling sub bass, syncopated percussion, energetic groove, 120-130 BPM, minor key, catchy melodic hook, club energy, latin influenced, urban, four-on-the-floor kick, punchy snares, perreo vibe, electronic production, dancefloor ready",
+                            "Dominican Dembow": "dominican dembow, El Alfa style, original caribbean dembow, tribal rhythm, fast percussion, 130 BPM, aggressive energy, dominican republic urban culture, raw street energy, bass heavy",
+                            "Trap Bow": "trap bow, dembow meets trap, El Alfa pioneered, dark aggressive energy, heavy 808, dembow rhythm pattern, 130 BPM, urban latin trap fusion, street energy, bass heavy production",
+                            "Dancehall Reggaeton Moombahton": "High-energy dancehall and reggae fusion track featuring a powerful male vocalist with a gritty, rhythmic delivery. The song is set at a fast tempo of 90 BPM in the key of G minor. The instrumentation is dominated by a heavy, syncopated bassline and a driving drum pattern consisting of a sharp snare on the two and four, layered with complex hi-hat rolls and a deep kick drum. A recurring melodic motif is played by a bright, staccato synthesizer with a slight delay effect. The vocal performance utilizes rhythmic chanting and melodic hooks, characterized by a raspy tone and Caribbean inflection. Wide stereo field, prominent reverb on ad-libs, clean punchy mix.",
+                            "Turreo Cumbia 420": "turreo cumbia 420, argentinian cumbia meets reggaeton, electronic production, 120 BPM, bass heavy, young urban argentina, cumbia rhythm fused with trap elements, party energy, latin street culture",
+                            "Corridos Tumbados": "corridos tumbados, mexican trap meets corrido, Natanael Cano style, accordion meets 808, spanish lyrics, dark themes, 120 BPM, northern mexican culture, emotional delivery, acoustic meets electronic",
+                            "Trap Latino": "trap latino, spanish lyrics trap, Bad Bunny old style, dark trap beat, heavy 808, aggressive flow, urban latin street energy, 135 BPM, dark minor key, latin trap fusion",
+                            "-- Dancehall/Afrobeats --": "",
+                            "Afrobeats": "afrobeats, west african rhythm, danceable groove, catchy melodic hook, percussion driven, 100-110 BPM, uplifting energy, talking drums, afropop fusion, joyful vibe, nigerian influenced, warm production, call and response vocals, global pop appeal",
+                            "Afrofuturism": "afrofuturism, traditional african instruments fused with electronic production, spiritual energy, futuristic sounds, deep bass, hypnotic rhythm, ancestral voices, modern synthesis, ethereal pads, 120 BPM, cosmic atmosphere, cultural identity, innovative fusion",
+                            "--- 🎤 HIP-HOP & RAP ---": "",
+                            "-- Old School / Classic --": "",
+                            "Old School Hip Hop": "old school hip hop, late 70s 80s sound, Sugar Hill Gang style, Kurtis Blow influenced, funky breakbeats, disco samples, simple rhymes, party energy, dj scratching, block party vibe, early rap culture, 100 BPM",
+                            "Golden Age Hip Hop": "golden age hip hop, 90s lyrical rap, Nas style, Jay-Z influenced, Biggie sound, complex wordplay, jazz samples, boom bap production, 90 BPM, storytelling, street poetry, new york underground, intricate flow",
+                            "Boom Bap": "boom bap, heavy kicks and snares, jazz samples, 90 BPM, new york sound, vinyl dustiness, underground hip hop, complex flow, lyrical delivery, lo-fi warmth, head nodding groove, classic rap production",
+                            "Gangsta Rap": "gangsta rap, street life themes, Tupac style, NWA influenced, Ice-T sound, aggressive delivery, west coast G-funk elements, heavy bass, dark narrative, authentic street energy, cinematic production, 95 BPM",
+                            "Conscious Rap": "conscious rap, social commentary, Kendrick Lamar style, Mos Def influenced, Common sound, intelligent lyrics, political themes, jazz influenced production, 90 BPM, thought-provoking, layered meaning, soulful delivery",
+                            "90s East Coast Hip Hop Wu-Tang": "90s East Coast Hip Hop, Hardcore Rap, Wu-Tang style, dark cinematic orchestration, dark synth, dark flute, dramatic piano loops, gritty boom bap drums, soulful vocal samples in background, aggressive delivery, intricate wordplay, no chorus, lo-fi dustiness, high energy, Bug Mafia voice, uzzy, tataie, rapper voice",
+                            "-- Regional US --": "",
+                            "West Coast G-Funk": "west coast g-funk, Dr Dre style, Snoop Dogg influenced, smooth synths, laid-back flow, 92 BPM, funky bassline, talkbox vocals, california vibe, slow groove, melodic hooks, gangsta storytelling, sunny dark contrast",
+                            "East Coast Hardcore": "east coast hardcore rap, NY gritty sound, Wu-Tang influenced, DMX style, aggressive delivery, dark cinematic production, heavy drums, street energy, 95 BPM, hard hitting lyrics, urban new york atmosphere",
+                            "Southern Hip Hop Dirty South": "southern hip hop, dirty south, OutKast style, UGK influenced, Master P sound, slow drawl flow, heavy bass, 95 BPM, trunk rattling 808, southern slang, down south energy, crunk elements, bouncy groove",
+                            "Atlanta Trap Original": "original atlanta trap, Gucci Mane style, Young Jeezy influenced, trap originators, heavy 808 bass, dark synths, street hustling themes, 140 BPM, hard snares, trap hi-hats, authentic atlanta streets, drug culture narrative",
+                            "Houston Rap": "houston rap, slow heavy delivery, UGK style, Travis Scott influenced, chopped feel, syrupy flow, 80 BPM, deep bass, southern texas culture, melodic hooks, introspective themes, swanging and banging",
+                            "Miami Bass": "miami bass, 2 Live Crew style, snappy electronic drums, 128 BPM, electro influenced, fast tempo, party energy, bass heavy, explicit themes, club energy, 80s florida sound",
+                            "-- Style / Mood --": "",
+                            "Jazz Rap": "jazz rap, A Tribe Called Quest style, De La Soul influenced, jazz samples, live instrumentation, 88 BPM, smooth flow, intellectual lyrics, positive energy, warm production, upright bass, saxophone elements, hip hop jazz fusion",
+                            "Lo-Fi Hip Hop": "lo-fi hip hop, study beats, relaxed chill vibe, 75 BPM, vinyl crackle, mellow jazz samples, soft drums, introspective mood, bedroom production, nostalgic warmth, head nodding groove, late night atmosphere",
+                            "Alternative Hip Hop": "alternative hip hop, experimental production, Kid Cudi style, OutKast influenced, unconventional structure, psychedelic elements, emotional vulnerability, 90 BPM, genre-blending, innovative sonic palette, introspective themes",
+                            "Horrorcore": "horrorcore, dark horror themes, Tech N9ne style, ICP influenced, sinister atmosphere, horror movie samples, aggressive delivery, dark storytelling, 130 BPM, occult elements, disturbing imagery, theatrical production",
+                            "Rap Rock": "rap rock, heavy guitars meets rap flow, Linkin Park style, Rage Against the Machine influenced, aggressive vocals, distorted guitars, powerful drums, 130 BPM, intense energy, crossover genre, nu metal elements",
+                            "Country Trap": "country trap, Lil Nas X style, country guitar meets trap beat, 808 bass, southern storytelling, twangy vocals, 120 BPM, genre fusion, country club energy, innovative crossover sound",
+                            "Afro Grime": "afro grime, UK grime meets afrobeats, fast MC flow, 140 BPM, electronic beats, african rhythm elements, british urban culture, aggressive delivery, cultural fusion, east london meets west africa",
+                        }
+                        music_template_dropdown = gr.Dropdown(
+                            choices=list(MUSIC_TEMPLATES.keys()),
+                            value="-- Select Template --",
+                            label="🎵 Music Style Templates",
+                            interactive=True,
+                        )
+                        alt_prompt = gr.Textbox(
+                            label=alt_prompt_label,
+                            value=ui_get("alt_prompt", ""),
+                            lines=alt_prompt_lines,
+                            placeholder=alt_prompt_placeholder,
+                            visible=True,
+                        )
+                        music_template_dropdown.change(
+                            fn=lambda t: MUSIC_TEMPLATES.get(t, ""),
+                            inputs=[music_template_dropdown],
+                            outputs=[alt_prompt],
+                        )
             else:
                 with gr.Row(visible=False) as alt_prompt_row:
                     alt_prompt = gr.Textbox(value=ui_get("alt_prompt", ""), visible=False)
@@ -10579,7 +10735,7 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
         
             mode = gr.Text(value="", visible = False)
 
-        with gr.Column(visible=(tab_id == 'generate')):
+        with gr.Column(visible=(tab_id == 'generate'), scale=2, elem_id="output-column"):
             if not update_form:
                 state = default_state if default_state is not None else gr.State(state_dict)
                 gen_status = gr.Text(interactive= False, label = "Status")
@@ -11497,12 +11653,193 @@ def create_ui():
     with open(css_path, "r", encoding="utf-8") as f:
         css = f.read()
 
+    css += """
+/* ── SUNO-INSPIRED SKIN ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root {
+    --s-bg:      #0f0f0f;
+    --s-surface: #1a1a1a;
+    --s-border:  #2a2a2a;
+    --s-accent:  #f5a623;
+    --s-accent2: #e8855a;
+    --s-text:    #f0f0f0;
+    --s-muted:   #888;
+    --s-radius:  10px;
+}
+body, .gradio-container, #root {
+    background: var(--s-bg) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: var(--s-text) !important;
+}
+.gradio-container h1, .gradio-container h2 {
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+}
+.tabs > .tab-nav {
+    background: var(--s-surface) !important;
+    border-bottom: 1px solid var(--s-border) !important;
+    padding: 0 1.5rem !important;
+    gap: 0 !important;
+}
+.tabs > .tab-nav button {
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+    color: var(--s-muted) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    padding: 0.9rem 1.2rem !important;
+    margin: 0 !important;
+    transition: color 0.2s, border-color 0.2s !important;
+}
+.tabs > .tab-nav button.selected, .tabs > .tab-nav button:hover {
+    color: var(--s-text) !important;
+    border-bottom-color: var(--s-accent) !important;
+}
+.block, .gr-block, .gr-box, .panel, .form {
+    background: var(--s-surface) !important;
+    border: 1px solid var(--s-border) !important;
+    border-radius: var(--s-radius) !important;
+}
+input[type=text], input[type=number], textarea, select {
+    background: #111 !important;
+    border: 1px solid var(--s-border) !important;
+    border-radius: 8px !important;
+    color: var(--s-text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+input[type=text]:focus, textarea:focus {
+    border-color: var(--s-accent) !important;
+    outline: none !important;
+}
+button.primary, button[variant="primary"] {
+    background: linear-gradient(135deg, var(--s-accent), var(--s-accent2)) !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 0.6rem 1.6rem !important;
+    font-family: 'DM Sans', sans-serif !important;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.3) !important;
+    transition: opacity 0.2s, transform 0.15s !important;
+}
+button.primary:hover, button[variant="primary"]:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-1px) !important;
+}
+button.secondary:not([aria-label]):not(.icon),
+button[variant="secondary"]:not([aria-label]):not(.icon) {
+    background: var(--s-surface) !important;
+    border: 1px solid var(--s-border) !important;
+    color: var(--s-text) !important;
+    border-radius: 50px !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+button[variant="stop"]:not([aria-label]) {
+    border: 1px solid #ef4444 !important;
+    color: #ef4444 !important;
+    background: transparent !important;
+    border-radius: 50px !important;
+}
+button[aria-label], [class*="waveform"] button, [class*="audio-player"] button {
+    border-radius: unset !important;
+    padding: unset !important;
+    font-family: unset !important;
+    box-shadow: none !important;
+    transform: none !important;
+    background: unset !important;
+    border: unset !important;
+    color: unset !important;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    background: var(--s-border) !important;
+    height: 4px !important;
+    border-radius: 2px !important;
+}
+input[type=range]::-webkit-slider-thumb {
+    background: var(--s-accent) !important;
+    border: none !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 8px rgba(245,166,35,0.5) !important;
+}
+.gallery-item, .thumbnail-item {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--s-border) !important;
+    transition: transform 0.2s !important;
+}
+.gallery-item:hover { transform: scale(1.02) !important; }
+.audio-gallery {
+    background: #111 !important;
+    border-radius: var(--s-radius) !important;
+    padding: 0.5rem !important;
+}
+.accordion > .label-wrap {
+    background: var(--s-surface) !important;
+    border: 1px solid var(--s-border) !important;
+    border-radius: var(--s-radius) !important;
+    padding: 0.75rem 1rem !important;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--s-bg); }
+::-webkit-scrollbar-thumb { background: var(--s-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--s-muted); }
+
+/* ── 2-COLUMN LAYOUT ── */
+#output-column {
+    position: sticky !important;
+    top: 1rem !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background: var(--s-surface) !important;
+    border: 1px solid var(--s-border) !important;
+    border-radius: var(--s-radius) !important;
+    padding: 1rem !important;
+    align-self: flex-start !important;
+}
+#output-column button[variant="primary"],
+#output-column button.primary {
+    width: 100% !important;
+    margin-top: 0.75rem !important;
+    font-size: 1rem !important;
+    padding: 0.75rem !important;
+}
+#output-column .gr-gallery { min-height: 280px !important; }
+#output-column .audio-gallery { max-height: 220px !important; overflow-y: auto !important; }
+@media (max-width: 900px) {
+    #output-column { position: relative !important; top: unset !important; max-height: unset !important; }
+}
+"""
+
     UI_theme = server_config.get("UI_theme", "default")
     UI_theme  = args.theme if len(args.theme) > 0 else UI_theme
     if UI_theme == "gradio":
         theme = None
     else:
-        theme = gr.themes.Soft(font=["Verdana"], primary_hue="sky", neutral_hue="slate", text_size="md")
+        theme = gr.themes.Base(
+            primary_hue="orange",
+            neutral_hue="zinc",
+            font=["DM Sans", "sans-serif"],
+            font_mono=["JetBrains Mono", "monospace"],
+        ).set(
+            body_background_fill="#0f0f0f",
+            body_background_fill_dark="#0f0f0f",
+            block_background_fill="#1a1a1a",
+            block_background_fill_dark="#1a1a1a",
+            block_border_color="#2a2a2a",
+            block_border_color_dark="#2a2a2a",
+            input_background_fill="#111111",
+            input_background_fill_dark="#111111",
+            button_primary_background_fill="linear-gradient(135deg, #f5a623, #e8855a)",
+            button_primary_background_fill_hover="linear-gradient(135deg, #f5a623cc, #e8855acc)",
+            button_primary_text_color="#000000",
+        )
 
     # Load main JS from external file
     js_path = os.path.join(os.path.dirname(__file__), "shared", "gradio", "ui_scripts.js")
@@ -11525,7 +11862,16 @@ def create_ui():
         stats_app = None
 
     with gr.Blocks(css=css, js=js,  theme=theme, title= "WanGP") as main:
-        gr.Markdown(f"<div align=center><H1>Wan<SUP>GP</SUP> v{WanGP_version} <FONT SIZE=4>by <I>DeepBeepMeep</I></FONT> <FONT SIZE=3>") # (<A HREF='https://github.com/deepbeepmeep/Wan2GP'>Updates</A>)</FONT SIZE=3></H1></div>")
+        gr.HTML(f"""
+        <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem 0.5rem;border-bottom:1px solid #2a2a2a;margin-bottom:0.5rem;">
+            <div style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#f5a623,#e8855a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                Wan<sup style="font-size:0.9rem;">GP</sup>
+            </div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#888;font-weight:500;">
+                v{WanGP_version} &nbsp;·&nbsp; by <em>DeepBeepMeep</em>
+            </div>
+        </div>
+        """)
         global model_list
 
         tab_state = gr.State({ "tab_no":0 }) 

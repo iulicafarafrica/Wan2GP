@@ -9481,7 +9481,7 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
         launch_multis_str = ui_defaults.get("loras_multipliers","")
         launch_loras = [os.path.basename(path) for path in ui_defaults.get("activated_loras",[])]
     with gr.Row():
-        column_kwargs = {'elem_id': 'edit-tab-content', 'scale': 3} if tab_id == 'edit' else {'scale': 3}
+        column_kwargs = {'elem_id': 'edit-tab-content'} if tab_id == 'edit' else {}
         with gr.Column(**column_kwargs):
             with gr.Column(visible=False, elem_id="image-modal-container") as modal_container:
                 modal_html_display = gr.HTML()
@@ -10735,7 +10735,7 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
         
             mode = gr.Text(value="", visible = False)
 
-        with gr.Column(visible=(tab_id == 'generate'), scale=2, elem_id="output-column"):
+        with gr.Column(visible=(tab_id == 'generate')):
             if not update_form:
                 state = default_state if default_state is not None else gr.State(state_dict)
                 gen_status = gr.Text(interactive= False, label = "Status")
@@ -11653,193 +11653,12 @@ def create_ui():
     with open(css_path, "r", encoding="utf-8") as f:
         css = f.read()
 
-    css += """
-/* ── SUNO-INSPIRED SKIN ── */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-:root {
-    --s-bg:      #0f0f0f;
-    --s-surface: #1a1a1a;
-    --s-border:  #2a2a2a;
-    --s-accent:  #f5a623;
-    --s-accent2: #e8855a;
-    --s-text:    #f0f0f0;
-    --s-muted:   #888;
-    --s-radius:  10px;
-}
-body, .gradio-container, #root {
-    background: var(--s-bg) !important;
-    font-family: 'DM Sans', sans-serif !important;
-    color: var(--s-text) !important;
-}
-.gradio-container h1, .gradio-container h2 {
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.03em !important;
-}
-.tabs > .tab-nav {
-    background: var(--s-surface) !important;
-    border-bottom: 1px solid var(--s-border) !important;
-    padding: 0 1.5rem !important;
-    gap: 0 !important;
-}
-.tabs > .tab-nav button {
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 500 !important;
-    font-size: 0.85rem !important;
-    color: var(--s-muted) !important;
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 2px solid transparent !important;
-    border-radius: 0 !important;
-    padding: 0.9rem 1.2rem !important;
-    margin: 0 !important;
-    transition: color 0.2s, border-color 0.2s !important;
-}
-.tabs > .tab-nav button.selected, .tabs > .tab-nav button:hover {
-    color: var(--s-text) !important;
-    border-bottom-color: var(--s-accent) !important;
-}
-.block, .gr-block, .gr-box, .panel, .form {
-    background: var(--s-surface) !important;
-    border: 1px solid var(--s-border) !important;
-    border-radius: var(--s-radius) !important;
-}
-input[type=text], input[type=number], textarea, select {
-    background: #111 !important;
-    border: 1px solid var(--s-border) !important;
-    border-radius: 8px !important;
-    color: var(--s-text) !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-input[type=text]:focus, textarea:focus {
-    border-color: var(--s-accent) !important;
-    outline: none !important;
-}
-button.primary, button[variant="primary"] {
-    background: linear-gradient(135deg, var(--s-accent), var(--s-accent2)) !important;
-    color: #000 !important;
-    font-weight: 700 !important;
-    border: none !important;
-    border-radius: 50px !important;
-    padding: 0.6rem 1.6rem !important;
-    font-family: 'DM Sans', sans-serif !important;
-    box-shadow: 0 4px 20px rgba(245,166,35,0.3) !important;
-    transition: opacity 0.2s, transform 0.15s !important;
-}
-button.primary:hover, button[variant="primary"]:hover {
-    opacity: 0.9 !important;
-    transform: translateY(-1px) !important;
-}
-button.secondary:not([aria-label]):not(.icon),
-button[variant="secondary"]:not([aria-label]):not(.icon) {
-    background: var(--s-surface) !important;
-    border: 1px solid var(--s-border) !important;
-    color: var(--s-text) !important;
-    border-radius: 50px !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-button[variant="stop"]:not([aria-label]) {
-    border: 1px solid #ef4444 !important;
-    color: #ef4444 !important;
-    background: transparent !important;
-    border-radius: 50px !important;
-}
-button[aria-label], [class*="waveform"] button, [class*="audio-player"] button {
-    border-radius: unset !important;
-    padding: unset !important;
-    font-family: unset !important;
-    box-shadow: none !important;
-    transform: none !important;
-    background: unset !important;
-    border: unset !important;
-    color: unset !important;
-}
-input[type=range]::-webkit-slider-runnable-track {
-    background: var(--s-border) !important;
-    height: 4px !important;
-    border-radius: 2px !important;
-}
-input[type=range]::-webkit-slider-thumb {
-    background: var(--s-accent) !important;
-    border: none !important;
-    width: 14px !important;
-    height: 14px !important;
-    border-radius: 50% !important;
-    box-shadow: 0 0 8px rgba(245,166,35,0.5) !important;
-}
-.gallery-item, .thumbnail-item {
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    border: 1px solid var(--s-border) !important;
-    transition: transform 0.2s !important;
-}
-.gallery-item:hover { transform: scale(1.02) !important; }
-.audio-gallery {
-    background: #111 !important;
-    border-radius: var(--s-radius) !important;
-    padding: 0.5rem !important;
-}
-.accordion > .label-wrap {
-    background: var(--s-surface) !important;
-    border: 1px solid var(--s-border) !important;
-    border-radius: var(--s-radius) !important;
-    padding: 0.75rem 1rem !important;
-}
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--s-bg); }
-::-webkit-scrollbar-thumb { background: var(--s-border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--s-muted); }
-
-/* ── 2-COLUMN LAYOUT ── */
-#output-column {
-    position: sticky !important;
-    top: 1rem !important;
-    max-height: calc(100vh - 80px) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    background: var(--s-surface) !important;
-    border: 1px solid var(--s-border) !important;
-    border-radius: var(--s-radius) !important;
-    padding: 1rem !important;
-    align-self: flex-start !important;
-}
-#output-column button[variant="primary"],
-#output-column button.primary {
-    width: 100% !important;
-    margin-top: 0.75rem !important;
-    font-size: 1rem !important;
-    padding: 0.75rem !important;
-}
-#output-column .gr-gallery { min-height: 280px !important; }
-#output-column .audio-gallery { max-height: 220px !important; overflow-y: auto !important; }
-@media (max-width: 900px) {
-    #output-column { position: relative !important; top: unset !important; max-height: unset !important; }
-}
-"""
-
     UI_theme = server_config.get("UI_theme", "default")
     UI_theme  = args.theme if len(args.theme) > 0 else UI_theme
     if UI_theme == "gradio":
         theme = None
     else:
-        theme = gr.themes.Base(
-            primary_hue="orange",
-            neutral_hue="zinc",
-            font=["DM Sans", "sans-serif"],
-            font_mono=["JetBrains Mono", "monospace"],
-        ).set(
-            body_background_fill="#0f0f0f",
-            body_background_fill_dark="#0f0f0f",
-            block_background_fill="#1a1a1a",
-            block_background_fill_dark="#1a1a1a",
-            block_border_color="#2a2a2a",
-            block_border_color_dark="#2a2a2a",
-            input_background_fill="#111111",
-            input_background_fill_dark="#111111",
-            button_primary_background_fill="linear-gradient(135deg, #f5a623, #e8855a)",
-            button_primary_background_fill_hover="linear-gradient(135deg, #f5a623cc, #e8855acc)",
-            button_primary_text_color="#000000",
-        )
+        theme = gr.themes.Soft(font=["Verdana"], primary_hue="sky", neutral_hue="slate", text_size="md")
 
     # Load main JS from external file
     js_path = os.path.join(os.path.dirname(__file__), "shared", "gradio", "ui_scripts.js")
@@ -11862,18 +11681,7 @@ input[type=range]::-webkit-slider-thumb {
         stats_app = None
 
     with gr.Blocks(css=css, js=js,  theme=theme, title= "WanGP") as main:
-        gr.HTML(f"""
-        <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem 0.5rem;border-bottom:1px solid #2a2a2a;margin-bottom:0.5rem;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(135deg,#f5a623,#e8855a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
-                Wan2GP
-            </div>
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#888;font-weight:500;line-height:1.5;">
-                v{WanGP_version} &nbsp;·&nbsp; by <em>DeepBeepMeep</em>
-                <br>
-                <span style="color:#f5a623;font-weight:600;">modified by Djiulian</span>
-            </div>
-        </div>
-        """)
+        gr.Markdown(f"<div align=center><H1>Wan<SUP>GP</SUP> v{WanGP_version} <FONT SIZE=4>by <I>DeepBeepMeep</I></FONT> <FONT SIZE=3>") # (<A HREF='https://github.com/deepbeepmeep/Wan2GP'>Updates</A>)</FONT SIZE=3></H1></div>")
         global model_list
 
         tab_state = gr.State({ "tab_no":0 }) 
