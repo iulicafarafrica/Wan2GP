@@ -4,7 +4,7 @@ version optimized for RTX 3070 ( added 6x speed and auto clean cache )
 
 ✅ Implement Negative Prompt support in Wan2GP
 
-✅ Add Better Prompt Templates (Romanian Trap, House, etc.)
+✅ Add Better Prompt Templates (Trap, House, Rock, 115 genres)
 
 ✅ Web Interface Modification: Simple design, Suno-style
 
