@@ -9987,52 +9987,13 @@ def generate_video_tab(update_form = False, state_dict = None, ui_defaults = Non
                 alt_prompt_lines = alt_prompt_def.get("lines", 2)
             if alt_prompt_label:
                 with gr.Row(visible=True) as alt_prompt_row:
-                    with gr.Column():
-                        MUSIC_TEMPLATES = {
-                            "-- Select Template --": "",
-                            "Romanian Trap": "romanian trap, dark trap beat, heavy 808 bass, distorted sub bass, punchy snares, rolling hi-hats, aggressive male rapper, street energy, Bucharest underground, dark atmospheric, slow melodic hook, ad-libs, hard hitting drums, trap banger, moody vibe, 140 BPM",
-                            "Romanian Hip-Hop Old School": "romanian hip-hop, old school rap, 2000s east coast influenced, boom bap beat, heavy bass, vinyl samples, aggressive male rapper, street poetry, Bucharest underground, dark atmospheric beat, slow deliberate flow, hard hitting drums, mafia theme, powerful chorus, crowd chant, raw authentic energy, 90s boom bap production style",
-                            "Romanian Hip-Hop Modern": "modern romanian hip-hop, melodic trap, autotune vocals, heavy 808 bass, dark beat, atmospheric synths, emotional delivery, street life themes, melodic hooks, trap production, BPM 130-140, minor key, dark ambient pads",
-                            "Romanian Drill": "romanian drill, dark drill beat, sliding 808 bass, punchy kicks, off-beat hi-hats, aggressive flow, street rap, dark minor key, cinematic strings, cold atmospheric, uk drill influenced, hard hitting production",
-                            "Romanian Melodic Trap": "melodic romanian trap, emotional trap, autotune heavy, melodic hooks, dark 808 bass, atmospheric beat, sad trap vibes, piano melody, catchy chorus, slow emotional delivery, minor key, reverb vocals, dreamy production",
-                            "Romanian Pop": "romanian pop, upbeat energetic, catchy melody, bright synths, modern production, danceable beat, radio friendly, polished mix, 120 BPM, major key, euphoric chorus, electronic elements",
-                            "Romanian R&B": "romanian r&b, smooth production, melodic vocals, soft 808 bass, emotional delivery, love themes, slow tempo, lush chords, soulful singing, modern r&b production, 90 BPM, romantic atmosphere",
-                            "Romanian Manele Trap": "romanian trap manele fusion, oriental influences, heavy bass, trap beat, eastern scales, traditional romanian elements mixed with modern trap production, catchy melodic hook, emotional vocals, 130 BPM",
-                            "Manele": "manele, oriental pop, romanian folk influenced, electronic production, catchy melodic hook, emotional male vocals, accordion samples, oriental scales, synthesizer lead, upbeat danceable rhythm, 130-140 BPM, minor key, festive energy, balkan influences, romantic themes, lush string arrangements, wedding dance vibe",
-                            "Dembow": "dembow, fast dancehall rhythm, boom-chick drum pattern, heavy 808 bass, rolling sub bass, syncopated percussion, energetic groove, 120-130 BPM, minor key, catchy melodic hook, club energy, latin influenced, urban, four-on-the-floor kick, punchy snares, perreo vibe, electronic production, dancefloor ready",
-                            "--- SPECIAL STYLES ---": "",
-                            "Afro House Aaron Sevilla Style": "Afro house / tribal house club track. Deep groovy kick, warm rolling bassline, hypnotic tribal percussion, bongos, congas and shakers. Dark, sexy and underground club vibe, minimal arrangement, strong groove for dancefloor. 124 BPM, minor key, DJ-friendly structure, late night club atmosphere, repetitive hypnotic energy",
-                            "Balada Rock Haiduceasca": "Baladă rock haiducescă, tempo lent (~70 BPM), atmosferă emoțională, dramatică și cinematică. Intro: fluier clar și melodios cu reverberație. Vers: instrumente tradiționale (cobză, vioară) combinate cu chitară acustică/eletrică subtilă și bass profund, ritm haiducesc vechi, melodie expresivă. Refren: voce masculină groasă, angelică, și voce feminină delicată, cu ecouri, armonii vechi și intensitate rock. Bridge: creștere ușoară a intensității chitarelor și coardelor pentru climax. Outro: diminuare progresivă, fluier reintrodus, final cinematic, emoțional și nostalgic. Sunet cald, clar, dramatic și autentic.",
-                            "Byzantine Angelic Female Voice": "Byzantine psaltic angelic female vocals, mezzo-soprano, clear crystalline tone, deeply expressive melismatic runs, fully acoustic, intimate, breathy, with delicate natural vibrato and dynamic phrasing. Soft ethereal humming intro, conveying profound tragedy, melancholy, and spiritual depth. Romanian mioritic ballad style fused with Avatar-inspired ethereal, cinematic atmosphere. Accompanied ONLY by solo melancholic violin and piano, balanced for pristine acoustic clarity and immersive resonance. Studio-quality recording, cinematic reverb, ethereal textures, emotionally intense, acapella-focused, profoundly moving",
-                            "Arabic Trap UK Drill": "A fast-paced Arabic trap instrumental fusing UK drill hi-hats, rolling basslines, and haunting Arabic vocal chops. Features darbuka patterns, distorted synths, and aggressive rhythms. Urban, dark, and aggressive and cinematic. Instrumental",
-                            "90s East Coast Hip Hop Wu-Tang": "90s East Coast Hip Hop, Hardcore Rap, Wu-Tang style, dark cinematic orchestration, dark synth, dark flute, dramatic piano loops, gritty boom bap drums, soulful vocal samples in background, aggressive delivery, intricate wordplay, no chorus, lo-fi dustiness, high energy, Bug Mafia voice, uzzy, tataie, rapper voice",
-                            "Dancehall Reggaeton Moombahton": "High-energy dancehall and reggae fusion track featuring a powerful male vocalist with a gritty, rhythmic delivery. The song is set at a fast tempo of 90 BPM in the key of G minor. The instrumentation is dominated by a heavy, syncopated bassline and a driving drum pattern consisting of a sharp snare on the two and four, layered with complex hi-hat rolls and a deep kick drum. A recurring melodic motif is played by a bright, staccato synthesizer with a slight delay effect. The vocal performance utilizes rhythmic chanting and melodic hooks, characterized by a raspy tone and Caribbean inflection. The production is polished with a wide stereo field, featuring prominent reverb on the vocal ad-libs and a clean, punchy mix that emphasizes the low-end frequencies.",
-                            "--- HOUSE ---": "",
-                            "Deep House": "deep house, warm bassline, soulful vocals, lush chords, atmospheric pads, smooth groove, 120 BPM, late night vibe, melodic synths, four-on-the-floor kick, subtle percussion, underground club feel, emotional depth, chicago house influenced",
-                            "Afro House": "afro house, african percussion, tribal drums, organic groove, deep bass, hypnotic rhythm, 122 BPM, ethnic instruments, warm pads, spiritual energy, south african house influenced, percussive elements, ancestral vibes, afro-tech fusion",
-                            "Tech House": "tech house, driving groove, punchy kick, deep bass, hypnotic loop, 128 BPM, minimal elements, dark atmosphere, underground club, percussive synths, filtered bass, mechanical rhythm, berlin techno influenced, peak time energy",
-                            "Melodic House": "melodic house, emotional journey, lush pads, melodic synth lead, deep bassline, 123 BPM, progressive build, ethereal atmosphere, cinematic feel, melodic techno influenced, euphoric breakdown, driving rhythm, introspective mood",
-                            "Minimal Tech House": "minimal tech house, stripped back production, hypnotic groove, subtle bass, repetitive loop, 126 BPM, dark underground, sparse arrangement, psychedelic elements, late night club, detroit techno influenced, micro percussion",
-                            "Afro Tech": "afro tech, deep tribal groove, electronic percussion, african rhythm patterns, dark bassline, 125 BPM, hypnotic energy, organic meets electronic, south african influence, spiritual atmosphere, deep rolling bass, ethereal vocals chops",
-                        }
-                        music_template_dropdown = gr.Dropdown(
-                            choices=list(MUSIC_TEMPLATES.keys()),
-                            value="-- Select Template --",
-                            label="🎵 Music Style Templates",
-                            interactive=True,
-                        )
-                        alt_prompt = gr.Textbox(
-                            label=alt_prompt_label,
-                            value=ui_get("alt_prompt", ""),
-                            lines=alt_prompt_lines,
-                            placeholder=alt_prompt_placeholder,
-                            visible=True,
-                        )
-                        music_template_dropdown.change(
-                            fn=lambda t: MUSIC_TEMPLATES.get(t, ""),
-                            inputs=[music_template_dropdown],
-                            outputs=[alt_prompt],
-                        )
+                    alt_prompt = gr.Textbox(
+                        label=alt_prompt_label,
+                        value=ui_get("alt_prompt", ""),
+                        lines=alt_prompt_lines,
+                        placeholder=alt_prompt_placeholder,
+                        visible=True,
+                    )
             else:
                 with gr.Row(visible=False) as alt_prompt_row:
                     alt_prompt = gr.Textbox(value=ui_get("alt_prompt", ""), visible=False)
