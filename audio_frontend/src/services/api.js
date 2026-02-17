@@ -2,7 +2,9 @@
  * API Service for Wan2GP Audio Studio Backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+// In development, use empty string to leverage Vite proxy
+// In production, use the full API URL from environment variable
+const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001');
 
 class AudioAPI {
   constructor(baseUrl) {
