@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Audio files (uploaded)
+../audio_uploads/*
+!../audio_uploads/.gitkeep
+
+# Output files
+../audio_output/*
+!../audio_output/.gitkeep
+
+# Temporary files
+../audio_temp/*
+!../audio_temp/.gitkeep
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
