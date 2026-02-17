@@ -49,3 +49,8 @@ settings/
 wgp_config.json
 plugins_local.json
 loras_url_cache.json
+
+# Frontend exceptions (don't ignore these)
+!audio_frontend/index.html
+!audio_frontend/.env.example
+!audio_frontend/dist/

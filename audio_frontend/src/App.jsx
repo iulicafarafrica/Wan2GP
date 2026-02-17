@@ -72,7 +72,7 @@ function App() {
   const [modelStatus, setModelStatus] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
 
-  const { job, progress, status, segments, startJob, cancelJob } = useJobManager(job?.job_id);
+  const { job, progress, status, segments, startJob, cancelJob } = useJobManager(job?.job_id || null);
 
   // Check backend health on mount
   useEffect(() => {
