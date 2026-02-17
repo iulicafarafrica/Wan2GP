@@ -1,0 +1,45 @@
+# Wan2GP Audio Studio Backend Requirements
+
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.22
+
+# Pydantic (data validation)
+pydantic>=2.10.0
+
+# Audio processing
+librosa>=0.11.0
+soundfile>=0.13.1
+pydub>=0.25.1
+
+# Torch (core ML framework)
+torch>=2.6.0
+torchaudio>=2.6.0
+
+# Optional: Install specific model integrations
+# Uncomment if you want to use actual models
+
+# SwiftF0
+# swiftf0  # Add actual package when available
+
+# SVC (so-vits-svc)
+# so-vits-svc  # Add actual package when available
+
+# SVC (HQ-SVC)
+# hq-svc  # Add actual package when available
+
+# SVC (Echo)
+# echo-svc  # Add actual package when available
+
+# Instrumental (HeartMuLa)
+# heartmula  # Add actual package when available
+
+# Instrumental (ACE-Step)
+# ace-step  # Add actual package when available
+
+# Alternative: audio-separator for vocal/instrumental separation
+# audio-separator>=0.36.1
+
+# Utilities
+numpy>=2.1.2

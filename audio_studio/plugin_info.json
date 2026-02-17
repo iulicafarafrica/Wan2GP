@@ -1,0 +1,9 @@
+{
+  "name": "Wan2GP Audio Studio",
+  "id": "wan2gp-audio-studio",
+  "version": "1.0.0",
+  "description": "Audio processing pipeline with SwiftF0, SVC, and instrumental generation",
+  "author": "Wan2GP Team",
+  "dependencies": [],
+  "permissions": ["gpu"]
+}
