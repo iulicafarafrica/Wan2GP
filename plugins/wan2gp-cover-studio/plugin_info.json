@@ -1,0 +1,9 @@
+{
+  "name": "Cover Studio",
+  "version": "1.0.0",
+  "description": "Full-length AI cover generation with voice conversion, pitch extraction, and instrumental generation",
+  "author": "Wan2GP Team",
+  "date": "2026-02-17",
+  "wan2gp_version": "1.0.0",
+  "uninstallable": false
+}
