@@ -4,6 +4,8 @@ import { AudioUploader } from './components/AudioUploader';
 import { WaveSurferPlayer } from './components/WaveSurferPlayer';
 import { JobProgress } from './components/JobProgress';
 import { ConfigForm } from './components/ConfigForm';
+import { ErrorNotification } from './components/ErrorNotification';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { useJobManager } from './hooks/useJobManager';
 import { audioAPI } from './services/api';
 import { cn } from './utils/cn';
@@ -71,8 +73,11 @@ function App() {
   const [backendStatus, setBackendStatus] = useState('unknown');
   const [modelStatus, setModelStatus] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
+  const [currentJobId, setCurrentJobId] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
+  const [isCheckingHealth, setIsCheckingHealth] = useState(true);
 
-  const { job, progress, status, segments, startJob, cancelJob } = useJobManager(job?.job_id || null);
+  const { job, progress, status, segments, startJob, cancelJob, loadJob, startPolling, error: jobError } = useJobManager(currentJobId);
 
   // Check backend health on mount
   useEffect(() => {
@@ -86,10 +91,19 @@ function App() {
     }
   }, [status]);
 
+  // Display job errors globally
+  useEffect(() => {
+    if (jobError) {
+      setGlobalError(jobError);
+    }
+  }, [jobError]);
+
   const checkBackendHealth = async () => {
+    setIsCheckingHealth(true);
     try {
       const health = await audioAPI.getHealth();
       setBackendStatus('healthy');
+      setGlobalError(null);
       
       // Also get model status
       try {
@@ -97,10 +111,14 @@ function App() {
         setModelStatus(models);
       } catch (e) {
         console.error('Failed to get model status:', e);
+        setGlobalError('Failed to load model status');
       }
     } catch (e) {
       setBackendStatus('unhealthy');
+      setGlobalError(`Backend is offline. Please ensure the server is running on port 8000.`);
       console.error('Backend health check failed:', e);
+    } finally {
+      setIsCheckingHealth(false);
     }
   };
 
@@ -111,11 +129,12 @@ function App() {
 
   const handleStartProcessing = async () => {
     if (!uploadedFile) {
-      alert('Please upload an audio file first');
+      setGlobalError('Please upload an audio file first');
       return;
     }
 
     try {
+      setGlobalError(null);
       // Create segments (for now, just one segment covering the whole file)
       // In a real implementation, you might want to segment based on silence, etc.
       const segments = [
@@ -127,15 +146,18 @@ function App() {
       ];
 
       const jobId = await startJob(config, segments);
+      setCurrentJobId(jobId);
+      startPolling(jobId);
       console.log('Job started:', jobId);
+      setActiveTab('progress');
     } catch (e) {
-      alert(`Failed to start job: ${e.message}`);
+      setGlobalError(`Failed to start job: ${e.message}`);
     }
   };
 
   const handleDownload = () => {
-    if (job?.job_id) {
-      const downloadUrl = audioAPI.getDownloadUrl(job.job_id);
+    if (currentJobId) {
+      const downloadUrl = audioAPI.getDownloadUrl(currentJobId);
       window.open(downloadUrl, '_blank');
     }
   };
@@ -143,11 +165,18 @@ function App() {
   const handleReset = () => {
     setUploadedFile(null);
     setConfig(defaultConfig);
+    setCurrentJobId(null);
     setActiveTab('upload');
   };
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* Error Notification */}
+      <ErrorNotification 
+        error={globalError} 
+        onClose={() => setGlobalError(null)} 
+      />
+
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -165,13 +194,15 @@ function App() {
             {/* Backend Status */}
             <button
               onClick={checkBackendHealth}
+              disabled={isCheckingHealth}
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                backendStatus === 'healthy' ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
+                backendStatus === 'healthy' ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400',
+                isCheckingHealth && 'opacity-50 cursor-not-allowed'
               )}
             >
               <Server className="w-4 h-4" />
-              {backendStatus === 'healthy' ? 'Backend Online' : 'Backend Offline'}
+              {isCheckingHealth ? 'Checking...' : backendStatus === 'healthy' ? 'Backend Online' : 'Backend Offline'}
             </button>
           </div>
         </div>
@@ -259,25 +290,36 @@ function App() {
             )}
 
             {activeTab === 'progress' && (
-              <JobProgress
-                progress={progress}
-                status={status}
-                currentStage={job?.current_stage}
-                message={job?.message}
-                segmentsCompleted={job?.segments_completed}
-                segmentsTotal={job?.segments_total}
-                segments={segments}
-              />
+              <div className="space-y-4">
+                <JobProgress
+                  progress={progress}
+                  status={status}
+                  currentStage={job?.current_stage}
+                  message={job?.message}
+                  segmentsCompleted={job?.segments_completed}
+                  segmentsTotal={job?.segments_total}
+                  segments={segments}
+                />
+                
+                {status === 'running' && currentJobId && (
+                  <button
+                    onClick={() => cancelJob(currentJobId)}
+                    className="btn btn-danger w-full"
+                  >
+                    Cancel Job
+                  </button>
+                )}
+              </div>
             )}
 
             {activeTab === 'preview' && status === 'completed' && (
               <div className="space-y-6">
                 {/* Preview Player */}
-                {job?.preview_url && (
+                {currentJobId && (
                   <div className="card">
                     <h3 className="text-lg font-semibold mb-4">Preview Result</h3>
                     <WaveSurferPlayer
-                      audioUrl={job.preview_url}
+                      audioUrl={audioAPI.getPreviewUrl(currentJobId)}
                       height={160}
                     />
                   </div>
@@ -291,9 +333,11 @@ function App() {
                       {segments.map((segment, idx) => (
                         segment.preview_path && (
                           <div key={idx} className="p-3 bg-gray-700/30 rounded-lg">
-                            <p className="text-sm font-medium mb-2">Segment {idx + 1}</p>
+                            <p className="text-sm font-medium mb-2">
+                              Segment {idx + 1} ({segment.start_time.toFixed(1)}s - {segment.end_time.toFixed(1)}s)
+                            </p>
                             <WaveSurferPlayer
-                              audioUrl={`/api${segment.preview_path}`}
+                              audioUrl={audioAPI.getPreviewUrl(currentJobId, idx)}
                               height={80}
                             />
                           </div>
@@ -391,7 +435,7 @@ function App() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">API URL</span>
-                  <span className="text-xs truncate max-w-32">http://127.0.0.1:8001</span>
+                  <span className="text-xs truncate max-w-32">http://127.0.0.1:8000</span>
                 </div>
               </div>
             </div>
