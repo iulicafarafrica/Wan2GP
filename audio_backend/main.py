@@ -508,7 +508,7 @@ async def get_rtx3070_profile():
 
 # ==================== Server Startup ====================
 
-def start_server(host: str = "127.0.0.1", port: int = 8001):
+def start_server(host: str = "127.0.0.1", port: int = 8000):
     """
     Start the FastAPI server
     

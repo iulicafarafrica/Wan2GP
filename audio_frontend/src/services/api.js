@@ -4,14 +4,33 @@
 
 // In development, use empty string to leverage Vite proxy
 // In production, use the full API URL from environment variable
-const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001');
+const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000');
+
+/**
+ * Custom error class for API errors
+ */
+class APIError extends Error {
+  constructor(message, status, endpoint, originalError) {
+    super(message);
+    this.name = 'APIError';
+    this.status = status;
+    this.endpoint = endpoint;
+    this.originalError = originalError;
+  }
+}
 
 class AudioAPI {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
+    this.requestQueue = [];
+    this.maxRetries = 3;
+    this.retryDelay = 1000;
   }
 
-  async request(endpoint, options = {}) {
+  /**
+   * Make an API request with error handling and retries
+   */
+  async request(endpoint, options = {}, retryCount = 0) {
     const url = `${this.baseUrl}${endpoint}`;
     
     const defaultOptions = {
@@ -31,15 +50,61 @@ class AudioAPI {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.detail || `HTTP ${response.status}`);
+        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        const errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}`;
+        
+        // Retry on server errors (5xx) or network issues
+        if (response.status >= 500 && retryCount < this.maxRetries) {
+          console.warn(`Request failed with ${response.status}, retrying... (${retryCount + 1}/${this.maxRetries})`);
+          await this.sleep(this.retryDelay * (retryCount + 1));
+          return this.request(endpoint, options, retryCount + 1);
+        }
+        
+        throw new APIError(errorMessage, response.status, endpoint);
       }
 
-      return await response.json();
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      
+      return response;
     } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      
+      // Network error or timeout - retry if not exceeded max retries
+      if (retryCount < this.maxRetries && this.isNetworkError(error)) {
+        console.warn(`Network error, retrying... (${retryCount + 1}/${this.maxRetries})`, error.message);
+        await this.sleep(this.retryDelay * (retryCount + 1));
+        return this.request(endpoint, options, retryCount + 1);
+      }
+      
       console.error(`API Error (${endpoint}):`, error);
-      throw error;
+      throw new APIError(
+        error.message || 'Network request failed',
+        0,
+        endpoint,
+        error
+      );
     }
+  }
+
+  /**
+   * Check if error is a network error
+   */
+  isNetworkError(error) {
+    return error instanceof TypeError || 
+           error.message.includes('fetch') || 
+           error.message.includes('network');
+  }
+
+  /**
+   * Sleep utility for retries
+   */
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // Health check
@@ -135,5 +200,8 @@ class AudioAPI {
 
 // Create and export singleton instance
 export const audioAPI = new AudioAPI(API_BASE_URL);
+
+// Export error class for use in error handling
+export { APIError };
 
 export default audioAPI;
